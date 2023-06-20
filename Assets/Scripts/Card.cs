@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Vector3 = UnityEngine.Vector3;
 
 namespace PyramidSolitaire
@@ -23,6 +25,10 @@ namespace PyramidSolitaire
     {
         [SerializeField] private SpriteRenderer _frontFaceSprite;
         [SerializeField] private SpriteRenderer _selecedRenderer;
+
+        // TODO: Fix that shit
+        public List<Card> ConnUp = new();
+        public List<Card> ConnDown = new();
 
         public CardPosition Position { get; private set; }
         public int Value { get; private set; }

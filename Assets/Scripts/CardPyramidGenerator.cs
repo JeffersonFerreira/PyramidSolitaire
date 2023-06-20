@@ -25,13 +25,26 @@ namespace PyramidSolitaire
                 // Render cards at the bottom on top of upper row cards
                 card.transform.position = genPosData.GlobalPosition.WithZ(-genPosData.Row);
 
-                card.SetVisibility(true);
-
                 bool isBottomRow = genPosData.Row == TOTAL_ROWS - 1;
+                card.SetVisibility(true);
+                card.SetInteractable(isBottomRow);
+
                 if (isBottomRow)
-                {
                     card.Flip(Face.Up);
-                    card.SetInteractable(true);
+
+                // Connect this card with cards down me
+                if (!isBottomRow)
+                {
+                    int rowWidth = genPosData.Row + 1;
+
+                    Card cardDownLeft = cards[i + rowWidth];
+                    Card cardDownRight = cards[i + rowWidth + 1];
+
+                    cardDownLeft.ConnUp.Add(card);
+                    cardDownRight.ConnUp.Add(card);
+
+                    card.ConnDown.Add(cardDownLeft);
+                    card.ConnDown.Add(cardDownRight);
                 }
             }
         }

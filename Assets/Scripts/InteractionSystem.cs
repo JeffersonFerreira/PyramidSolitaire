@@ -63,20 +63,32 @@ namespace PyramidSolitaire
             }
         }
 
-        private void MarkAsSelected(Card card)
+        private void MarkAsSelected(Card selectedCard)
         {
-            _selectedCards.Add(card);
-            card.SetSelected(true);
+            _selectedCards.Add(selectedCard);
+            selectedCard.SetSelected(true);
 
             if (_selectedCards.Sum(c => c.Value) == 13)
             {
                 var pile = CardPile.Get(CardPosition.PairedPile);
 
                 // Move selection to "paired" pile
-                foreach (var c in _selectedCards)
+                foreach (var card in _selectedCards)
                 {
-                    c.SetSelected(false);
-                    pile.AddCard(c);
+                    card.SetSelected(false);
+
+                    //TODO: This inner loop is ugly as hell, fix it
+                    foreach (var upperCard in card.ConnUp)
+                    {
+                        upperCard.ConnDown.Remove(card);
+                        if (upperCard.ConnDown.Count == 0)
+                        {
+                            upperCard.Flip(Face.Up);
+                            upperCard.SetInteractable(true);
+                        }
+                    }
+
+                    pile.AddCard(card);
                 }
 
                 _selectedCards.Clear();

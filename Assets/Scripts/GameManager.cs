@@ -34,7 +34,8 @@ namespace PyramidSolitaire
         {
             foreach (CardData cardData in cardRepository)
             {
-                var card = Object.Instantiate(cardPrefab, Vector3.zero, Quaternion.identity);
+                Card card = Object.Instantiate(cardPrefab, Vector3.zero, Quaternion.identity);
+                card.gameObject.name = $"Card | {cardData.FrontFace.name}_{cardData.Value}";
 
                 card.Setup(cardData);
                 card.Flip(Face.Down);
