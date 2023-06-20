@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace PyramidSolitaire
@@ -5,6 +8,8 @@ namespace PyramidSolitaire
     public class InteractionSystem : MonoBehaviour
     {
         private Camera _cam;
+
+        private readonly List<Card> _selectedCards = new(2);
 
         private void Start()
         {
@@ -25,24 +30,65 @@ namespace PyramidSolitaire
 
         private void HandleCardHit(Card card)
         {
-            Debug.Log($"Card hit at '{card.Position}' with value '{card.Value}'");
+            switch (card.Position)
+            {
+                case CardPosition.DrawPile:
+                {
+                    CardPile discardPile = CardPile.Get(CardPosition.DiscardPile);
 
-            MoveCardTo(card, CardPosition.DiscardPile);
+                    card.Flip(Face.Up);
+                    discardPile.AddCard(card);
+
+                    break;
+                }
+                case CardPosition.Pyramid:
+                {
+                    // TODO: Only process if is a leaf card
+                    MarkAsSelected(card);
+                    break;
+                }
+                case CardPosition.DiscardPile:
+                {
+                    // Select this card
+                    MarkAsSelected(card);
+                    break;
+                }
+                case CardPosition.PairedPile:
+                {
+                    Debug.LogWarning("Paired cards should not be selectable", card);
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
-        private void MoveCardTo(Card card, CardPosition position)
+        private void MarkAsSelected(Card card)
         {
-            if (position == CardPosition.Pyramid)
+            _selectedCards.Add(card);
+            card.SetSelected(true);
+
+            if (_selectedCards.Sum(c => c.Value) == 13)
             {
-                Debug.LogError("Moving card to pyramid is not allowed");
-                return;
+                var pile = CardPile.Get(CardPosition.PairedPile);
+
+                // Move selection to "paired" pile
+                foreach (var c in _selectedCards)
+                {
+                    c.SetSelected(false);
+                    pile.AddCard(c);
+                }
+
+                _selectedCards.Clear();
             }
+            else if (_selectedCards.Count == 2)
+            {
+                // Clear selection
+                foreach (var c in _selectedCards)
+                    c.SetSelected(false);
 
-            var pile = CardPile.AtPos(position);
-
-            card.transform.position = pile.transform.position;
-            card.SetPosition(position);
-            pile.AddCard(card);
+                _selectedCards.Clear();
+            }
         }
     }
 }

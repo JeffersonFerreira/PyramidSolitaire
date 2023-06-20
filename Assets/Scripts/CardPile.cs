@@ -13,7 +13,7 @@ namespace PyramidSolitaire
         public static IReadOnlyDictionary<CardPosition, CardPile> All => _allPiles;
         private static readonly Dictionary<CardPosition, CardPile> _allPiles = new();
 
-        private readonly Stack<Card> _cards = new();
+        private readonly Stack<Card> _stack = new();
 
         private void Awake()
         {
@@ -35,23 +35,25 @@ namespace PyramidSolitaire
         public void AddCard(params Card[] cards)
         {
             // Hide Top card
-            if (_cards.TryPeek(out var topCard))
+            if (_stack.TryPeek(out var topCard))
                 topCard.SetVisibility(false);
 
             // Hide all cards and store into
             foreach (var card in cards)
             {
                 card.transform.position = transform.position;
+                card.LeaveCurrentPile();
+                card.SetPosition(Position);
                 card.SetVisibility(false);
 
-                _cards.Push(card);
+                _stack.Push(card);
             }
 
             // Show top card
-            _cards.Peek().SetVisibility(true);
+            _stack.Peek().SetVisibility(true);
         }
 
-        public static CardPile AtPos(CardPosition position)
+        public static CardPile Get(CardPosition position)
         {
             if (!_allPiles.TryGetValue(position, out var pile))
             {
@@ -60,6 +62,20 @@ namespace PyramidSolitaire
             }
 
             return pile;
+        }
+
+        public bool TryDraw(out Card card)
+        {
+            // Try pop from stack
+            // If a card was drew, return it and make the next card visible
+
+            if (!_stack.TryPop(out card))
+                return false;
+
+            if (_stack.TryPeek(out var topCard))
+                topCard.SetVisibility(true);
+
+            return true;
         }
     }
 }

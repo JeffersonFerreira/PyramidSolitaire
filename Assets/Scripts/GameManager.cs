@@ -7,6 +7,8 @@ namespace PyramidSolitaire
 {
     public class GameManager : MonoBehaviour
     {
+        private const int PYRAMID_INITIAL_CARDS = 28;
+
         private void Start()
         {
             var deck = new Deck();
@@ -17,9 +19,9 @@ namespace PyramidSolitaire
             deck.Shuffle();
 
             var pyramid = FindObjectOfType<CardPyramidGenerator>();
-            var drawPile = CardPile.AtPos(CardPosition.DrawPile);
+            var drawPile = CardPile.Get(CardPosition.DrawPile);
 
-            pyramid.Generate(deck.Draw(28)); // TODO: Create a constant number somewhere
+            pyramid.Generate(deck.Draw(PYRAMID_INITIAL_CARDS));
             drawPile.AddCard(deck.DrawRemaining());
         }
     }
