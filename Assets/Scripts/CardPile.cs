@@ -10,9 +10,10 @@ namespace PyramidSolitaire
 
         public CardPosition Position => _position;
 
-        public static IReadOnlyDictionary<CardPosition, CardPile> All => _internalPiles;
-        private static readonly Dictionary<CardPosition, CardPile> _internalPiles = new();
-        private Stack<Card> _cards = new();
+        public static IReadOnlyDictionary<CardPosition, CardPile> All => _allPiles;
+        private static readonly Dictionary<CardPosition, CardPile> _allPiles = new();
+
+        private readonly Stack<Card> _cards = new();
 
         private void Awake()
         {
@@ -23,26 +24,36 @@ namespace PyramidSolitaire
 
         private void OnEnable()
         {
-            _internalPiles.Add(_position, this);
+            _allPiles.Add(_position, this);
         }
 
         private void OnDisable()
         {
-            _internalPiles.Remove(_position);
+            _allPiles.Remove(_position);
         }
 
-        public void AddCard(Card card)
+        public void AddCard(params Card[] cards)
         {
-            // TODO: Hide cards underneath
-            // if (_cards.TryPeek(out var topCard))
-            //     topCard.Hide();
+            // Hide Top card
+            if (_cards.TryPeek(out var topCard))
+                topCard.SetVisibility(false);
 
-            _cards.Push(card);
+            // Hide all cards and store into
+            foreach (var card in cards)
+            {
+                card.transform.position = transform.position;
+                card.SetVisibility(false);
+
+                _cards.Push(card);
+            }
+
+            // Show top card
+            _cards.Peek().SetVisibility(true);
         }
 
-        public static CardPile Get(CardPosition position)
+        public static CardPile AtPos(CardPosition position)
         {
-            if (!_internalPiles.TryGetValue(position, out var pile))
+            if (!_allPiles.TryGetValue(position, out var pile))
             {
                 Debug.LogError($"Unable to find pile at '{position}'");
                 return null;

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,26 +12,22 @@ namespace PyramidSolitaire
 
         private const int TOTAL_ROWS = 7;
 
-        private GameContext _gameContext;
-
-        private void Awake()
-        {
-            _gameContext = FindObjectOfType<GameContext>();
-        }
-
-        private void Start()
+        public void Generate(Card[] cards)
         {
             GeneratePositions();
-            TempInstantiateCards();
-        }
 
-        private void TempInstantiateCards()
-        {
-            foreach (var pos in _generatedPositions)
+            for (var i = 0; i < cards.Length; i++)
             {
-                var card = Instantiate(_gameContext.CardPrefab, pos.GlobalPosition, Quaternion.identity);
+                PyramidPos genPosData = _generatedPositions[i];
+                Card card = cards[i];
 
-                card.SetInteractable(pos.Row == TOTAL_ROWS - 1);
+                Vector3 pos = genPosData.GlobalPosition;
+                pos.z = -genPosData.Row;
+
+                card.transform.position = pos;
+
+                card.SetVisibility(true);
+                card.SetInteractable(genPosData.Row == TOTAL_ROWS - 1);
             }
         }
 
@@ -82,5 +77,6 @@ namespace PyramidSolitaire
             public int Row;
             public int Column;
         }
+
     }
 }

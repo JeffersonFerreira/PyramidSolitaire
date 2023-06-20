@@ -38,7 +38,7 @@ namespace PyramidSolitaire
                 return;
             }
 
-            var pile = CardPile.Get(position);
+            var pile = CardPile.AtPos(position);
 
             card.transform.position = pile.transform.position;
             card.SetPosition(position);

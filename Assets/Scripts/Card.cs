@@ -25,19 +25,25 @@ namespace PyramidSolitaire
             _collider = GetComponent<Collider2D>();
         }
 
-        public void SetPosition(CardPosition position)
+        public void Setup(CardData cardData)
         {
-            this.Position = position;
+            _frontFaceSprite.sprite = cardData.FrontFace;
+            Value = cardData.Value;
         }
 
-        public void ReplaceFace(Sprite sprite)
+        public void SetPosition(CardPosition position)
         {
-            _frontFaceSprite.sprite = sprite;
+            Position = position;
         }
 
         public void SetInteractable(bool state)
         {
             _collider.enabled = state;
+        }
+
+        public void SetVisibility(bool state)
+        {
+            gameObject.SetActive(state);
         }
     }
 }
