@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using PyramidSolitaire.Extensions;
 using UnityEngine;
 
 namespace PyramidSolitaire
@@ -18,16 +19,20 @@ namespace PyramidSolitaire
 
             for (var i = 0; i < cards.Length; i++)
             {
-                PyramidPos genPosData = _generatedPositions[i];
                 Card card = cards[i];
+                PyramidPos genPosData = _generatedPositions[i];
 
-                Vector3 pos = genPosData.GlobalPosition;
-                pos.z = -genPosData.Row;
-
-                card.transform.position = pos;
+                // Render cards at the bottom on top of upper row cards
+                card.transform.position = genPosData.GlobalPosition.WithZ(-genPosData.Row);
 
                 card.SetVisibility(true);
-                card.SetInteractable(genPosData.Row == TOTAL_ROWS - 1);
+
+                bool isBottomRow = genPosData.Row == TOTAL_ROWS - 1;
+                if (isBottomRow)
+                {
+                    card.Flip(Face.Up);
+                    card.SetInteractable(true);
+                }
             }
         }
 
@@ -77,6 +82,5 @@ namespace PyramidSolitaire
             public int Row;
             public int Column;
         }
-
     }
 }

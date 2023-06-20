@@ -37,6 +37,7 @@ namespace PyramidSolitaire
                 var card = Object.Instantiate(cardPrefab, Vector3.zero, Quaternion.identity);
 
                 card.Setup(cardData);
+                card.Flip(Face.Down);
                 card.SetVisibility(false);
                 _cardList.Add(card);
             }
