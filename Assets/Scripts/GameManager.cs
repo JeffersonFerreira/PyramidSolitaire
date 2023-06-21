@@ -12,6 +12,7 @@ namespace PyramidSolitaire
 
         private CardPile _drawPile;
         private CardPilePyramid _pyramid;
+        private CardPileStack _discardPile;
         private InteractionSystem _interaction;
 
         private GameUIManager _gameUI;
@@ -28,6 +29,7 @@ namespace PyramidSolitaire
 
             _drawPile = CardPile.Get(CardPosition.DrawPile);
             _pyramid = CardPile.Get<CardPilePyramid>(CardPosition.Pyramid);
+            _discardPile = CardPile.Get<CardPileStack>(CardPosition.DiscardPile);
 
             InitializeGame();
 
@@ -35,11 +37,6 @@ namespace PyramidSolitaire
             _interaction.OnDrawCard += UserInteraction_DrawCard;
         }
 
-        private void UserInteraction_DrawCard(Card _)
-        {
-            if (_drawPile.Count == 0 && !HasWinCondition())
-                GameOver(false);
-        }
 
         private void GameOver(bool playerWon)
         {
@@ -73,59 +70,15 @@ namespace PyramidSolitaire
             }
         }
 
-        public Card[] GetMatchingCards()
+        private void UserInteraction_DrawCard(Card _)
         {
-            var upCards = _pyramid.Cards
-                .Where(c => c.FaceDirection == Face.Up)
-                .ToList();
-
-            if (CardPile.Get<CardPileStack>(CardPosition.DiscardPile).TryPeek(out var discardCard))
-                upCards.Add(discardCard);
-
-            var dictionary = upCards
-                .GroupBy(c => c.Value)
-                .Select(g => g.First())
-                .ToDictionary(c => c.Value);
-
-            foreach ((int value, var card) in dictionary)
-            {
-                if (value == 13)
-                    return new []{ card};
-
-                int remainder = 13 - value;
-                if (dictionary.TryGetValue(remainder, out var other))
-                {
-                    return new []{ card, other };
-                }
-            }
-
-            return Array.Empty<Card>();
+            if (_drawPile.Count == 0 && !HasWinCondition())
+                GameOver(false);
         }
 
         private bool HasWinCondition()
         {
-            _cardsValueSet.Clear();
-            _pyramid.Cards
-                .Where(c => c.FaceDirection == Face.Up)
-                .Select(c => c.Value)
-                .AddTo(_cardsValueSet);
-
-            if (CardPile.Get<CardPileStack>(CardPosition.DiscardPile).TryPeek(out var card))
-                _cardsValueSet.Add(card.Value);
-
-            foreach (int value in _cardsValueSet)
-            {
-                if (value == 13)
-                    return true;
-
-                int remainder = 13 - value;
-
-                // 13 is a prime number, we will not face an issue like "value + value == 13"
-                if (_cardsValueSet.Contains(remainder))
-                    return true;
-            }
-
-            return false;
+            return GameAutoMatcher.GetMatchingCards(_pyramid, _discardPile, out _) > 0;
         }
     }
 }

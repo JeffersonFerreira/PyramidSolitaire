@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 using PyramidSolitaire;
 using UnityEngine;
@@ -22,6 +23,7 @@ public class GeneralPlaymodeTests
         yield return Init();
 
         var drawPile = CardPile.Get<CardPileStack>(CardPosition.DrawPile);
+        var discardPile = CardPile.Get<CardPileStack>(CardPosition.DiscardPile);
         var pyramidPile = CardPile.Get<CardPilePyramid>(CardPosition.Pyramid);
 
         var gameManager = Object.FindObjectOfType<GameManager>();
@@ -40,12 +42,15 @@ public class GeneralPlaymodeTests
         while (!gameover && --maxLoopCount > 0)
         {
             // Select cards which values can sum to 13
-            Card[] matchingCards = gameManager.GetMatchingCards();
+            int count  = GameAutoMatcher.GetMatchingCards(pyramidPile, discardPile, out var matchingCards);
 
-            if (matchingCards.Length > 0)
+            if (count > 0)
             {
-                foreach (var c in matchingCards)
-                    interactionSystem.ClickOnCard(c);
+                for (var i = 0; i < count; i++)
+                {
+                    var card = matchingCards[i];
+                    interactionSystem.ClickOnCard(card);
+                }
             }
             else
             {
