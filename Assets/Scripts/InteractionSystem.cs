@@ -78,6 +78,7 @@ namespace PyramidSolitaire
                 foreach (var card in _selectedCards)
                 {
                     // TODO: This inner loop is ugly as hell, fix it
+                    // Try show cards blocked by those.
                     foreach (var upperCard in card.ConnUp)
                     {
                         upperCard.ConnDown.Remove(card);
@@ -92,14 +93,14 @@ namespace PyramidSolitaire
                     pairPile.AddCard(card);
                 }
 
+                // I know this may cause unexpected side effect for async operations, but this is not the case here.
+                // Also, I don't want to instantiate a new collection just for that.
                 OnPickedCards?.Invoke(_selectedCards);
                 _selectedCards.Clear();
             }
             else if (_selectedCards.Count == 2)
             {
                 _selectedCards.ForEach(c => c.SetSelected(false));
-
-                OnPickedCards?.Invoke(_selectedCards);
                 _selectedCards.Clear();
             }
         }
