@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using PyramidSolitaire.Extensions;
 using UnityEngine;
-using Vector3 = UnityEngine.Vector3;
 
 namespace PyramidSolitaire
 {
@@ -25,20 +26,27 @@ namespace PyramidSolitaire
         [SerializeField] private SpriteRenderer _frontFaceSprite;
         [SerializeField] private SpriteRenderer _selecedRenderer;
 
-        // TODO: Fix that shit
+        // Jeff: This is not great, but I'm not being able to think in a good abstraction for now
         public List<Card> ConnUp = new();
         public List<Card> ConnDown = new();
 
-        public Face FaceDirection { get; private set; } = Face.Down;
-
-        public CardPosition Position { get; private set; } = CardPosition.Unset;
         public int Value { get; private set; }
+        public Face FaceDirection { get; private set; } = Face.Down;
+        public CardPosition Position { get; private set; } = CardPosition.Unset;
+
+        public int SortingOrder
+        {
+            get => _spriteRenderers[0].sortingOrder;
+            set => _spriteRenderers.ForEach(s => s.sortingOrder = value);
+        }
 
         private Collider2D _collider;
+        private SpriteRenderer[] _spriteRenderers;
 
         private void Awake()
         {
             _collider = GetComponent<Collider2D>();
+            _spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
         }
 
         public void Setup(CardData cardData)
@@ -73,7 +81,33 @@ namespace PyramidSolitaire
 
             var euler = Vector3.zero;
             euler.y = face == Face.Up ? 0 : 180;
-            gameObject.transform.localEulerAngles = euler;
+            transform.localEulerAngles = euler;
+        }
+
+        public void FlipAnimated(Face face)
+        {
+            FaceDirection = face;
+            float targetY = face == Face.Up ? 0 : 180;
+
+            StartCoroutine(Animate());
+
+            IEnumerator Animate()
+            {
+                while (true)
+                {
+                    float current = transform.localEulerAngles.y;
+                    float angle = Mathf.MoveTowardsAngle(current, targetY, Time.deltaTime * (30*30));
+
+                    transform.localEulerAngles = Vector3.up * angle;
+                    yield return null;
+
+                    if (Mathf.Abs(targetY - angle) < 0.1f)
+                        break;
+                }
+
+                // Snap in place to avoid misalignment
+                transform.localEulerAngles = Vector3.up * targetY;
+            }
         }
 
         public void LeaveCurrentPile()
@@ -96,7 +130,7 @@ namespace PyramidSolitaire
                 upperCard.ConnDown.Remove(this);
                 if (upperCard.ConnDown.Count == 0)
                 {
-                    upperCard.Flip(Face.Up);
+                    upperCard.FlipAnimated(Face.Up);
                     upperCard.SetInteractable(true);
                 }
             }

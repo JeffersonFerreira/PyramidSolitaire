@@ -231,6 +231,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _frontFaceSprite: {fileID: 509719420901122501}
   _selecedRenderer: {fileID: 6481651497123968660}
+  ConnUp: []
+  ConnDown: []
 --- !u!1 &7166192558900690951
 GameObject:
   m_ObjectHideFlags: 0

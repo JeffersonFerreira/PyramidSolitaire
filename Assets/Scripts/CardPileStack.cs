@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PyramidSolitaire
@@ -35,6 +35,44 @@ namespace PyramidSolitaire
 
             // Show top card
             _stack.Peek().SetVisibility(true);
+        }
+
+        public void AddCardAnimated(Card card)
+        {
+            // Cache card before me to hide later
+            bool hasCardBefore = _stack.TryPeek(out var cardBefore);
+
+            // Already add the card to avoid an "out-of-sync" from other systems
+            _stack.Push(card);
+            card.LeaveCurrentPile();
+            card.SetPosition(Position);
+
+            if (hasCardBefore)
+                card.SortingOrder = cardBefore.SortingOrder + 1;
+
+            StartCoroutine(Animate());
+            IEnumerator Animate()
+            {
+                // Animate
+                var finalPos = transform.position;
+                while (true)
+                {
+                    var pos = card.transform.position;
+                    var newPos = Vector3.MoveTowards(pos, finalPos, Time.deltaTime * 30);
+
+                    card.transform.position = newPos;
+
+                    if ((newPos - finalPos).sqrMagnitude < 0.1f * 0.1f)
+                        break;
+
+                    yield return null;
+                }
+
+                // Snap into final pos to avoid misalignment
+                card.transform.position = finalPos;
+                if (hasCardBefore)
+                    cardBefore.SetVisibility(false);
+            }
         }
 
         public override bool TryRemove(Card targetCard)

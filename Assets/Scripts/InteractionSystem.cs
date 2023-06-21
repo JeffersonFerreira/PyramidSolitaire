@@ -45,10 +45,10 @@ namespace PyramidSolitaire
             {
                 case CardPosition.DrawPile:
                 {
-                    CardPile discardPile = CardPile.Get(CardPosition.DiscardPile);
+                    CardPileStack discardPile = CardPile.Get<CardPileStack>(CardPosition.DiscardPile);
 
                     card.Flip(Face.Up);
-                    discardPile.AddCard(card);
+                    discardPile.AddCardAnimated(card);
 
                     OnDrawCard?.Invoke(card);
                     break;
@@ -86,13 +86,13 @@ namespace PyramidSolitaire
 
             if (_selectedCards.Sum(c => c.Value) == 13)
             {
-                var pairPile = CardPile.Get(CardPosition.PairedPile);
+                var pairPile = CardPile.Get<CardPileStack>(CardPosition.PairedPile);
 
                 // Move selected cards into "paired" pile
                 foreach (var card in _selectedCards)
                 {
                     card.TryDisconnectAndShowAbove();
-                    pairPile.AddCard(card);
+                    pairPile.AddCardAnimated(card);
                 }
 
                 // I know this may cause unexpected side effect for async operations, but this is not the case here.
