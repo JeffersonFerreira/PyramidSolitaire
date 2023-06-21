@@ -8,7 +8,6 @@ namespace PyramidSolitaire
 {
     public class Deck
     {
-        private Transform _root;
         private readonly List<Card> _cardList = new();
         private Random _random;
 
@@ -20,7 +19,7 @@ namespace PyramidSolitaire
 
             foreach (CardData cardData in cardRepository)
             {
-                Card card = Object.Instantiate(cardPrefab, Vector3.zero, Quaternion.identity, _root);
+                Card card = Object.Instantiate(cardPrefab, Vector3.zero, Quaternion.identity, root);
                 card.gameObject.name = $"Card | {cardData.FrontFace.name}_{cardData.Value}";
 
                 card.Setup(cardData);
