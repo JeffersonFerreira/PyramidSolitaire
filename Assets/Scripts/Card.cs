@@ -87,5 +87,19 @@ namespace PyramidSolitaire
                 throw new Exception("You are doing something wrong bro, how this happened???");
             }
         }
+
+        public void TryDisconnectAndShowAbove()
+        {
+            // Try show cards blocked by this.
+            foreach (var upperCard in ConnUp)
+            {
+                upperCard.ConnDown.Remove(this);
+                if (upperCard.ConnDown.Count == 0)
+                {
+                    upperCard.Flip(Face.Up);
+                    upperCard.SetInteractable(true);
+                }
+            }
+        }
     }
 }

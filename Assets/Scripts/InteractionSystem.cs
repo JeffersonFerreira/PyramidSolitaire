@@ -27,7 +27,13 @@ namespace PyramidSolitaire
             var hit = Physics2D.GetRayIntersection(new Ray(point, Vector3.forward));
 
             if (hit.transform != null && hit.transform.TryGetComponent(out Card card))
+            {
                 HandleCardHit(card);
+            }
+            else
+            {
+                ClearSelection();
+            }
         }
 
         private void HandleCardHit(Card card)
@@ -45,13 +51,11 @@ namespace PyramidSolitaire
                 }
                 case CardPosition.Pyramid:
                 {
-                    // TODO: Only process if is a leaf card
                     SelectCard(card);
                     break;
                 }
                 case CardPosition.DiscardPile:
                 {
-                    // Select this card
                     SelectCard(card);
                     break;
                 }
@@ -74,35 +78,29 @@ namespace PyramidSolitaire
             {
                 var pairPile = CardPile.Get(CardPosition.PairedPile);
 
-                // Move selection to "paired" pile
+                // Move selected cards into "paired" pile
                 foreach (var card in _selectedCards)
                 {
-                    // TODO: This inner loop is ugly as hell, fix it
-                    // Try show cards blocked by those.
-                    foreach (var upperCard in card.ConnUp)
-                    {
-                        upperCard.ConnDown.Remove(card);
-                        if (upperCard.ConnDown.Count == 0)
-                        {
-                            upperCard.Flip(Face.Up);
-                            upperCard.SetInteractable(true);
-                        }
-                    }
-
-                    card.SetSelected(false);
+                    card.TryDisconnectAndShowAbove();
                     pairPile.AddCard(card);
                 }
 
                 // I know this may cause unexpected side effect for async operations, but this is not the case here.
                 // Also, I don't want to instantiate a new collection just for that.
                 OnPickedCards?.Invoke(_selectedCards);
-                _selectedCards.Clear();
+                ClearSelection();
             }
             else if (_selectedCards.Count == 2)
             {
-                _selectedCards.ForEach(c => c.SetSelected(false));
-                _selectedCards.Clear();
+                OnPickedCards?.Invoke(_selectedCards);
+                ClearSelection();
             }
+        }
+
+        private void ClearSelection()
+        {
+            _selectedCards.ForEach(c => c.SetSelected(false));
+            _selectedCards.Clear();
         }
     }
 }

@@ -77,17 +77,18 @@ namespace PyramidSolitaire
             var center = includeOffset ? transform.position : Vector3.zero;
             for (int row = 0; row < TOTAL_ROWS; row++)
             {
-                int cardCount = row + 1;
-                for (int col = 0; col < cardCount; col++)
+                int rowLength = row + 1;
+                for (int col = 0; col < rowLength; col++)
                 {
+                    float horizontalOffset = (_cardSize.x + _cardSpacing.x) * row * 0.5f;
+
                     var pos = new Vector2(
-                        (center.x + _cardSize.x * col) + (_cardSpacing.x * col) -
-                        ((_cardSize.x + _cardSpacing.x) * row * 0.5f),
+                        // Card Pos + Space Between - Horizontal half shift to left
+                        (center.x + _cardSize.x * col) + (_cardSpacing.x * col) - horizontalOffset,
                         (center.y - _cardSize.y * row) + (_cardSpacing.y * row)
                     );
 
-                    _generatedPositions.Add(new PyramidPos
-                    {
+                    _generatedPositions.Add(new PyramidPos {
                         Row = row,
                         GlobalPosition = pos
                     });

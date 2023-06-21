@@ -63,7 +63,6 @@ namespace PyramidSolitaire
             }
         }
 
-
         private bool HasWinCondition()
         {
             _cardsValueSet.Clear();
