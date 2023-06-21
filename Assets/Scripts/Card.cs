@@ -29,6 +29,8 @@ namespace PyramidSolitaire
         public List<Card> ConnUp = new();
         public List<Card> ConnDown = new();
 
+        public Face FaceDirection { get; private set; } = Face.Down;
+
         public CardPosition Position { get; private set; } = CardPosition.Unset;
         public int Value { get; private set; }
 
@@ -67,6 +69,8 @@ namespace PyramidSolitaire
 
         public void Flip(Face face)
         {
+            FaceDirection = face;
+
             var euler = Vector3.zero;
             euler.y = face == Face.Up ? 0 : 180;
             gameObject.transform.localEulerAngles = euler;
@@ -74,7 +78,7 @@ namespace PyramidSolitaire
 
         public void LeaveCurrentPile()
         {
-            if (Position is CardPosition.PairedPile or CardPosition.Unset)
+            if (Position is CardPosition.Unset or CardPosition.PairedPile)
                 return;
 
             if (!CardPile.Get(Position).TryRemove(this))

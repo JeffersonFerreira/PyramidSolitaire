@@ -9,6 +9,8 @@ namespace PyramidSolitaire
     {
         private Camera _cam;
 
+        public event Action<IReadOnlyList<Card>> OnPickedCards;
+
         private readonly List<Card> _selectedCards = new(2);
 
         private void Start()
@@ -44,13 +46,13 @@ namespace PyramidSolitaire
                 case CardPosition.Pyramid:
                 {
                     // TODO: Only process if is a leaf card
-                    MarkAsSelected(card);
+                    SelectCard(card);
                     break;
                 }
                 case CardPosition.DiscardPile:
                 {
                     // Select this card
-                    MarkAsSelected(card);
+                    SelectCard(card);
                     break;
                 }
                 case CardPosition.PairedPile:
@@ -63,21 +65,19 @@ namespace PyramidSolitaire
             }
         }
 
-        private void MarkAsSelected(Card selectedCard)
+        private void SelectCard(Card selectedCard)
         {
             _selectedCards.Add(selectedCard);
             selectedCard.SetSelected(true);
 
             if (_selectedCards.Sum(c => c.Value) == 13)
             {
-                var pile = CardPile.Get(CardPosition.PairedPile);
+                var pairPile = CardPile.Get(CardPosition.PairedPile);
 
                 // Move selection to "paired" pile
                 foreach (var card in _selectedCards)
                 {
-                    card.SetSelected(false);
-
-                    //TODO: This inner loop is ugly as hell, fix it
+                    // TODO: This inner loop is ugly as hell, fix it
                     foreach (var upperCard in card.ConnUp)
                     {
                         upperCard.ConnDown.Remove(card);
@@ -88,17 +88,18 @@ namespace PyramidSolitaire
                         }
                     }
 
-                    pile.AddCard(card);
+                    card.SetSelected(false);
+                    pairPile.AddCard(card);
                 }
 
+                OnPickedCards?.Invoke(_selectedCards);
                 _selectedCards.Clear();
             }
             else if (_selectedCards.Count == 2)
             {
-                // Clear selection
-                foreach (var c in _selectedCards)
-                    c.SetSelected(false);
+                _selectedCards.ForEach(c => c.SetSelected(false));
 
+                OnPickedCards?.Invoke(_selectedCards);
                 _selectedCards.Clear();
             }
         }

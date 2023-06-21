@@ -9,10 +9,14 @@ namespace PyramidSolitaire
         [SerializeField] private Vector2 _cardSize = new Vector2(1, 1);
         [SerializeField] private Vector2 _cardSpacing = Vector2.zero;
 
+        public const int INITIAL_CARD_COUNT = 28;
+
+        public IReadOnlyCollection<Card> Cards => _cardList;
+
         public override int Count => _cardList.Count;
 
-        private readonly List<Card> _cardList = new(28);
-        private readonly List<PyramidPos> _generatedPositions = new(28);
+        private readonly List<Card> _cardList = new(INITIAL_CARD_COUNT);
+        private readonly List<PyramidPos> _generatedPositions = new(INITIAL_CARD_COUNT);
 
         private const int TOTAL_ROWS = 7;
 
@@ -31,7 +35,9 @@ namespace PyramidSolitaire
                 Card card = cards[i];
                 PyramidPos genPosData = _generatedPositions[i];
 
-                // Render cards at the bottom on top of upper row cards
+                // By reducing the "z" axis, the card gets closer to the camera
+                //  and will be rendered on top of other cards.
+                // We could achieve the same using the "sortOrder" property, but our needs is too simple for that.
                 card.transform.position = genPosData.GlobalPosition.WithZ(-genPosData.Row);
 
                 bool isBottomRow = genPosData.Row == TOTAL_ROWS - 1;

@@ -4,13 +4,15 @@ namespace PyramidSolitaire
 {
     public class GameContext : MonoBehaviour
     {
+        [SerializeField] private Card _cardPrefab;
         [SerializeField] private CardRepository _cardRepository;
+        [SerializeField] private Transform _cardsSpawnContainer;
 
-        [field: SerializeField]
-        public Card CardPrefab { get; private set; }
+        public Card CardPrefab => _cardPrefab;
+        public CardRepository CardRepository => _cardRepository;
+        public Transform CardsSpawnContainer => _cardsSpawnContainer;
 
         public static GameContext Instance { get; private set; }
-        public CardRepository CardRepository => _cardRepository;
 
         private void Awake()
         {

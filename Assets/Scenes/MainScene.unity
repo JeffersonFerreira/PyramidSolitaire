@@ -235,7 +235,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4ead1348fb82f74083667ddc8c8a831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _position: 0
   <Position>k__BackingField: 0
   _cardSize: {x: 0.81, y: 1.21}
   _cardSpacing: {x: 0.08, y: 0.55}
@@ -283,8 +282,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb911552c15d49dcbb35ec566d4d22aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _cardPrefab: {fileID: 1842931486688818689, guid: f4d013b22ceb6cc49a15f02fd2c9067e, type: 3}
   _cardRepository: {fileID: 11400000, guid: c0032bc44660d2741b5644e9991cf651, type: 2}
-  <CardPrefab>k__BackingField: {fileID: 1842931486688818689, guid: f4d013b22ceb6cc49a15f02fd2c9067e, type: 3}
+  _cardsSpawnContainer: {fileID: 238181695}
 --- !u!1 &297732750
 GameObject:
   m_ObjectHideFlags: 0
@@ -810,7 +810,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc9d0e844d4487cbef261901c8c71cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _position: 3
   <Position>k__BackingField: 3
 --- !u!1 &3483242691313480540
 GameObject:
@@ -927,7 +926,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc9d0e844d4487cbef261901c8c71cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _position: 2
   <Position>k__BackingField: 2
 --- !u!4 &4224373106582717857
 Transform:
@@ -1008,5 +1006,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc9d0e844d4487cbef261901c8c71cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _position: 1
   <Position>k__BackingField: 1

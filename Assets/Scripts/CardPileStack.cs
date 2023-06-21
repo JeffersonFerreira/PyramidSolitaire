@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace PyramidSolitaire
@@ -47,6 +48,11 @@ namespace PyramidSolitaire
                 topCard.SetVisibility(true);
 
             return true;
+        }
+
+        public bool TryPeek(out Card card)
+        {
+            return _stack.TryPeek(out card);
         }
     }
 }

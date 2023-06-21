@@ -1,67 +1,89 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace PyramidSolitaire
 {
     public class GameManager : MonoBehaviour
     {
-        private const int PYRAMID_INITIAL_CARDS = 28;
+        private CardPile _drawPile;
+        private CardPilePyramid _pyramid;
+        private InteractionSystem _interaction;
 
         private void Start()
         {
-            var deck = new Deck();
-            var cardPrefab = GameContext.Instance.CardPrefab;
-            var cardRepository = GameContext.Instance.CardRepository;
+            _interaction = FindObjectOfType<InteractionSystem>();
 
-            deck.GenerateCards(cardPrefab, cardRepository);
+            _drawPile = CardPile.Get(CardPosition.DrawPile);
+            _pyramid = CardPile.Get<CardPilePyramid>(CardPosition.Pyramid);
+
+            InitializeGame();
+
+            _interaction.OnPickedCards += InteractionPickedCards;
+        }
+
+
+        private void GameOver(bool playerWon)
+        {
+            Debug.Log($"GameOver: {nameof(playerWon)} = {playerWon}");
+        }
+
+        private void InitializeGame()
+        {
+            var deck = new Deck();
+            var prefab = GameContext.Instance.CardPrefab;
+            var repo = GameContext.Instance.CardRepository;
+            var root = GameContext.Instance.CardsSpawnContainer;
+
+            deck.GenerateCards(prefab, repo, root);
             deck.Shuffle();
 
-            var pyramid = FindObjectOfType<CardPilePyramid>();
-            var drawPile = CardPile.Get(CardPosition.DrawPile);
-
-            pyramid.AddCard(deck.Draw(PYRAMID_INITIAL_CARDS));
-            drawPile.AddCard(deck.DrawRemaining());
+            _pyramid.AddCard(deck.Draw(CardPilePyramid.INITIAL_CARD_COUNT));
+            _drawPile.AddCard(deck.DrawRemaining());
         }
-    }
 
-    public class Deck
-    {
-        private readonly List<Card> _cardList = new();
-
-        public void GenerateCards(Card cardPrefab, CardRepository cardRepository)
+        private void InteractionPickedCards(IReadOnlyList<Card> _)
         {
-            foreach (CardData cardData in cardRepository)
+            if (_pyramid.Count == 0)
             {
-                Card card = Object.Instantiate(cardPrefab, Vector3.zero, Quaternion.identity);
-                card.gameObject.name = $"Card | {cardData.FrontFace.name}_{cardData.Value}";
-
-                card.Setup(cardData);
-                card.Flip(Face.Down);
-                card.SetVisibility(false);
-                _cardList.Add(card);
+                GameOver(true);
+            }
+            else if (_drawPile.Count == 0 && !HasWinCondition())
+            {
+                GameOver(false);
             }
         }
 
-        public void Shuffle()
+        private bool HasWinCondition()
         {
-            Debug.LogWarning("Deck.Shuffle() was not implemented");
-        }
+            // There are valid win conditions?
+            // Grab up cards from pyramid
+            // Add the top card from discard pile
 
-        public Card[] Draw(int amount)
-        {
-            Card[] cards = _cardList.Take(amount).ToArray();
-            _cardList.RemoveRange(0, cards.Length);
+            // Collect the value into a hashset
+            // Check if there is a match for 13
 
-            return cards;
-        }
 
-        public Card[] DrawRemaining()
-        {
-            Card[] cards = _cardList.ToArray();
-            _cardList.Clear();
-            return cards;
+            var hashSet = _pyramid.Cards
+                .Where(c => c.FaceDirection == Face.Up)
+                .Select(c => c.Value)
+                .ToHashSet();
+
+            if (CardPile.Get<CardPileStack>(CardPosition.DiscardPile).TryPeek(out var card))
+                hashSet.Add(card.Value);
+
+            foreach (int value in hashSet)
+            {
+                if (value == 13)
+                    return true;
+
+                int remainder = 13 - value;
+
+                if (hashSet.Contains(remainder))
+                    return true;
+            }
+
+            return false;
         }
     }
 }
