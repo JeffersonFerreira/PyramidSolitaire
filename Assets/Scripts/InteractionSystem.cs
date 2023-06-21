@@ -7,11 +7,14 @@ namespace PyramidSolitaire
 {
     public class InteractionSystem : MonoBehaviour
     {
-        private Camera _cam;
-
         public event Action<IReadOnlyList<Card>> OnPickedCards;
+        public event Action<Card> OnDrawCard;
+
+        public IReadOnlyList<Card> SelectedCards => _selectedCards;
 
         private readonly List<Card> _selectedCards = new(2);
+
+        private Camera _cam;
 
         private void Start()
         {
@@ -28,7 +31,7 @@ namespace PyramidSolitaire
 
             if (hit.transform != null && hit.transform.TryGetComponent(out Card card))
             {
-                HandleCardHit(card);
+                ClickOnCard(card);
             }
             else
             {
@@ -36,7 +39,7 @@ namespace PyramidSolitaire
             }
         }
 
-        private void HandleCardHit(Card card)
+        public void ClickOnCard(Card card)
         {
             switch (card.Position)
             {
@@ -47,6 +50,7 @@ namespace PyramidSolitaire
                     card.Flip(Face.Up);
                     discardPile.AddCard(card);
 
+                    OnDrawCard?.Invoke(card);
                     break;
                 }
                 case CardPosition.Pyramid:
@@ -67,6 +71,12 @@ namespace PyramidSolitaire
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public void ClearSelection()
+        {
+            _selectedCards.ForEach(c => c.SetSelected(false));
+            _selectedCards.Clear();
         }
 
         private void SelectCard(Card selectedCard)
@@ -95,12 +105,6 @@ namespace PyramidSolitaire
                 OnPickedCards?.Invoke(_selectedCards);
                 ClearSelection();
             }
-        }
-
-        private void ClearSelection()
-        {
-            _selectedCards.ForEach(c => c.SetSelected(false));
-            _selectedCards.Clear();
         }
     }
 }
