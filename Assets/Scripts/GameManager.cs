@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using PyramidSolitaire.Extensions;
 using UnityEngine;
 
 namespace PyramidSolitaire
 {
+    public enum EndState
+    {
+        Won,
+        Lost
+    }
+
     public class GameManager : MonoBehaviour
     {
-        public event Action<bool> OnGameOver;
+        public event Action<EndState> OnGameOver;
 
         private CardPile _drawPile;
         private CardPilePyramid _pyramid;
@@ -16,7 +20,6 @@ namespace PyramidSolitaire
         private InteractionSystem _interaction;
 
         private GameUIManager _gameUI;
-        private readonly HashSet<int> _cardsValueSet = new();
 
         private void Awake()
         {
@@ -40,8 +43,10 @@ namespace PyramidSolitaire
 
         private void GameOver(bool playerWon)
         {
-            OnGameOver?.Invoke(playerWon);
-            _gameUI.ShowGameOver(playerWon);
+            var state = playerWon ? EndState.Won : EndState.Lost;
+
+            OnGameOver?.Invoke(state);
+            _gameUI.ShowGameOver(state);
         }
 
         private void InitializeGame()

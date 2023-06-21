@@ -29,17 +29,13 @@ public class GeneralPlaymodeTests
         var gameManager = Object.FindObjectOfType<GameManager>();
         var interactionSystem = Object.FindObjectOfType<InteractionSystem>();
 
-        bool gameover = false;
-        bool playerWon = false;
+        EndState? endState = null;
 
-        gameManager.OnGameOver += a => {
-            playerWon = a;
-            gameover = true;
-        };
+        gameManager.OnGameOver += state => endState = state;
 
         // Adding a max loop count just in case... 👀
         int maxLoopCount = 200;
-        while (!gameover && --maxLoopCount > 0)
+        while (!endState.HasValue && --maxLoopCount > 0)
         {
             // Select cards which values can sum to 13
             int count  = GameAutoMatcher.GetMatchingCards(pyramidPile, discardPile, out var matchingCards);
@@ -61,14 +57,19 @@ public class GeneralPlaymodeTests
                 interactionSystem.ClickOnCard(drawTopCard);
             }
 
-            yield return new WaitForSeconds(0.125f);
+            yield return new WaitForSeconds(0.25F);
         }
 
-        Debug.Log($"PlayerWon = {playerWon}");
-        if (!playerWon)
+        Debug.Log($"EndState = {endState!.Value}");
+        if (endState!.Value == EndState.Lost)
+        {
             Assert.That(drawPile.Count, Is.Zero);
+            Assert.That(pyramidPile.Cards, Is.Not.Empty);
+        }
         else
+        {
             Assert.That(pyramidPile.Cards, Is.Empty);
+        }
 
         yield return new WaitForSeconds(1);
     }

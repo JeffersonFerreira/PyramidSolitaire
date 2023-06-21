@@ -23,11 +23,11 @@ namespace PyramidSolitaire
             _playAgainButton.onClick.AddListener(() => SceneManager.LoadScene("MainScene"));
         }
 
-        public void ShowGameOver(bool playerWon)
+        public void ShowGameOver(EndState state)
         {
             _canvas.enabled = true;
-            _wonPanel.SetActive(playerWon);
-            _lostPanel.SetActive(!playerWon);
+            _wonPanel.SetActive(state == EndState.Won);
+            _lostPanel.SetActive(state == EndState.Lost);
         }
     }
 }

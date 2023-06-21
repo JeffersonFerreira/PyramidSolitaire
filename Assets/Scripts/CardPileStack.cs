@@ -6,6 +6,8 @@ namespace PyramidSolitaire
 {
     public class CardPileStack : CardPile
     {
+        [SerializeField] private float _moveCardSpeed = 30;
+
         public override int Count => _stack.Count;
         private readonly Stack<Card> _stack = new();
 
@@ -58,7 +60,7 @@ namespace PyramidSolitaire
                 while (true)
                 {
                     var pos = card.transform.position;
-                    var newPos = Vector3.MoveTowards(pos, finalPos, Time.deltaTime * 30);
+                    var newPos = Vector3.MoveTowards(pos, finalPos, Time.deltaTime * _moveCardSpeed);
 
                     card.transform.position = newPos;
 

@@ -26,6 +26,9 @@ namespace PyramidSolitaire
         [SerializeField] private SpriteRenderer _frontFaceSprite;
         [SerializeField] private SpriteRenderer _selecedRenderer;
 
+        [Space]
+        [SerializeField] private float _flipSpeed = 30*30;
+
         // Jeff: This is not great, but I'm not being able to think in a good abstraction for now
         public List<Card> ConnUp = new();
         public List<Card> ConnDown = new();
@@ -96,7 +99,7 @@ namespace PyramidSolitaire
                 while (true)
                 {
                     float current = transform.localEulerAngles.y;
-                    float angle = Mathf.MoveTowardsAngle(current, targetY, Time.deltaTime * (30*30));
+                    float angle = Mathf.MoveTowardsAngle(current, targetY, Time.deltaTime * _flipSpeed);
 
                     transform.localEulerAngles = Vector3.up * angle;
                     yield return null;
