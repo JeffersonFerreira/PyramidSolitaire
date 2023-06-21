@@ -4,18 +4,27 @@ using UnityEngine;
 
 namespace PyramidSolitaire
 {
-    public class CardPyramidGenerator : MonoBehaviour
+    public class CardPilePyramid : CardPile
     {
         [SerializeField] private Vector2 _cardSize = new Vector2(1, 1);
         [SerializeField] private Vector2 _cardSpacing = Vector2.zero;
 
-        private readonly List<PyramidPos> _generatedPositions = new(27);
+        public override int Count => _cardList.Count;
+
+        private readonly List<Card> _cardList = new(28);
+        private readonly List<PyramidPos> _generatedPositions = new(28);
 
         private const int TOTAL_ROWS = 7;
 
-        public void Generate(Card[] cards)
+        private void Start()
         {
             GeneratePositions();
+        }
+
+        public override void AddCard(params Card[] cards)
+        {
+            GeneratePositions();
+            _cardList.AddRange(cards);
 
             for (var i = 0; i < cards.Length; i++)
             {
@@ -26,6 +35,7 @@ namespace PyramidSolitaire
                 card.transform.position = genPosData.GlobalPosition.WithZ(-genPosData.Row);
 
                 bool isBottomRow = genPosData.Row == TOTAL_ROWS - 1;
+                card.SetPosition(Position);
                 card.SetVisibility(true);
                 card.SetInteractable(isBottomRow);
 
@@ -49,6 +59,11 @@ namespace PyramidSolitaire
             }
         }
 
+        public override bool TryRemove(Card targetCard)
+        {
+            return _cardList.Remove(targetCard);
+        }
+
         private void GeneratePositions(bool includeOffset = true)
         {
             _generatedPositions.Clear();
@@ -68,7 +83,6 @@ namespace PyramidSolitaire
                     _generatedPositions.Add(new PyramidPos
                     {
                         Row = row,
-                        Column = col,
                         GlobalPosition = pos
                     });
                 }
@@ -93,7 +107,6 @@ namespace PyramidSolitaire
         {
             public Vector2 GlobalPosition;
             public int Row;
-            public int Column;
         }
     }
 }

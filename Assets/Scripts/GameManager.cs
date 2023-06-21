@@ -18,10 +18,10 @@ namespace PyramidSolitaire
             deck.GenerateCards(cardPrefab, cardRepository);
             deck.Shuffle();
 
-            var pyramid = FindObjectOfType<CardPyramidGenerator>();
+            var pyramid = FindObjectOfType<CardPilePyramid>();
             var drawPile = CardPile.Get(CardPosition.DrawPile);
 
-            pyramid.Generate(deck.Draw(PYRAMID_INITIAL_CARDS));
+            pyramid.AddCard(deck.Draw(PYRAMID_INITIAL_CARDS));
             drawPile.AddCard(deck.DrawRemaining());
         }
     }

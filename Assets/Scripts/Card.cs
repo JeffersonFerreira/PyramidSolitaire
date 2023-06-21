@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Vector3 = UnityEngine.Vector3;
 
 namespace PyramidSolitaire
 {
     public enum CardPosition
     {
+        Unset = -1,
         Pyramid,
         DrawPile,
         DiscardPile,
@@ -30,7 +29,7 @@ namespace PyramidSolitaire
         public List<Card> ConnUp = new();
         public List<Card> ConnDown = new();
 
-        public CardPosition Position { get; private set; }
+        public CardPosition Position { get; private set; } = CardPosition.Unset;
         public int Value { get; private set; }
 
         private Collider2D _collider;
@@ -75,15 +74,13 @@ namespace PyramidSolitaire
 
         public void LeaveCurrentPile()
         {
-            // This card can only be selected if currently positioned on top of a pile.
-            if (Position is not (CardPosition.DrawPile or CardPosition.DiscardPile))
+            if (Position is CardPosition.PairedPile or CardPosition.Unset)
                 return;
 
-            if (CardPile.Get(Position).TryDraw(out var other))
+            if (!CardPile.Get(Position).TryRemove(this))
             {
                 // Just a warning in case Jeff built something wrong 👀
-                if (other != this)
-                    throw new Exception("You are doing something wrong bro, how this happened???");
+                throw new Exception("You are doing something wrong bro, how this happened???");
             }
         }
     }

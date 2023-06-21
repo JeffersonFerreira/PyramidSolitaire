@@ -4,54 +4,27 @@ using UnityEngine;
 namespace PyramidSolitaire
 {
     // Notice: If any of there is throwing, you probably have 2 class instances with same "Position" value
-    public class CardPile : MonoBehaviour
+    public abstract class CardPile : MonoBehaviour
     {
-        [SerializeField] private CardPosition _position;
-
-        public CardPosition Position => _position;
+        [field: SerializeField] public CardPosition Position { get; private set; }
 
         public static IReadOnlyDictionary<CardPosition, CardPile> All => _allPiles;
         private static readonly Dictionary<CardPosition, CardPile> _allPiles = new();
 
-        private readonly Stack<Card> _stack = new();
+        public abstract int Count { get; }
 
-        private void Awake()
+        protected virtual void OnEnable()
         {
-            // This sprite renderer is just a visualizer, so we know where the pile is
-            if (TryGetComponent(out SpriteRenderer spriteRenderer))
-                spriteRenderer.enabled = false;
+            _allPiles.Add(Position, this);
         }
 
-        private void OnEnable()
+        protected virtual void OnDisable()
         {
-            _allPiles.Add(_position, this);
+            _allPiles.Remove(Position);
         }
 
-        private void OnDisable()
-        {
-            _allPiles.Remove(_position);
-        }
-
-        public void AddCard(params Card[] cards)
-        {
-            // Hide Top card
-            if (_stack.TryPeek(out var topCard))
-                topCard.SetVisibility(false);
-
-            // Hide all cards and store into
-            foreach (var card in cards)
-            {
-                card.transform.position = transform.position;
-                card.LeaveCurrentPile();
-                card.SetPosition(Position);
-                card.SetVisibility(false);
-
-                _stack.Push(card);
-            }
-
-            // Show top card
-            _stack.Peek().SetVisibility(true);
-        }
+        public abstract void AddCard(params Card[] cards);
+        public abstract bool TryRemove(Card targetCard);
 
         public static CardPile Get(CardPosition position)
         {
@@ -64,18 +37,15 @@ namespace PyramidSolitaire
             return pile;
         }
 
-        public bool TryDraw(out Card card)
+        public static T Get<T>(CardPosition position) where T : CardPile
         {
-            // Try pop from stack
-            // If a card was drew, return it and make the next card visible
+            if (Get(position) is not T pileTyped)
+            {
+                Debug.LogError($"Pile at position '{position}' is not of type {typeof(T).Name}");
+                return null;
+            }
 
-            if (!_stack.TryPop(out card))
-                return false;
-
-            if (_stack.TryPeek(out var topCard))
-                topCard.SetVisibility(true);
-
-            return true;
+            return pileTyped;
         }
     }
 }
